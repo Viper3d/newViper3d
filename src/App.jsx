@@ -124,44 +124,44 @@ export default function App() {
         </section>
 
         <section className='container mx-auto rounded-3xl shadow-xl shadow-black z-50'>
-  <h2 className="p-4 bg-gradient-to-r from-black to-blue-400 text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-semibold text-white rounded-t-3xl">
-    Nuestro <span className="font-bold text-blue-300">TOP!</span>
-  </h2>
-  <div className="relative p-6 mb-12 rounded-b-3xl bg-gradient-to-r from-black to-blue-400">
-    <div className="relative w-full overflow-hidden">
-      <div className="flex transition-transform duration-1000" style={{ transform: `translateX(-${currentSlide * (100 / (window.innerWidth < 1024 ? 1 : 4))}%)` }}>
-        {slides.concat(slides).map((slide, index) => (
-          <div key={index} className="w-full flex-shrink-0 px-2" style={{ width: `${window.innerWidth < 1024 ? '100%' : '25%'}` }}>
-            <div
-              className="flex justify-center items-center"
-              onMouseEnter={() => setHoveredIndex(index % slides.length)}
-              onMouseLeave={() => setHoveredIndex(null)}
-            >
-              <div className="relative">
-                <img
-                  src={slide.src}
-                  alt={slide.alt}
-                  className={`h-max w-full object-contain rounded-3xl transition-opacity duration-1000 ${hoveredIndex === (index % slides.length) ? 'opacity-0' : 'opacity-100'}`}
-                />
-                <img
-                  src={slide.hoverSrc}
-                  alt={`${slide.alt}-hover`}
-                  className={`h-max w-full object-contain rounded-3xl transition-opacity duration-1000 absolute top-0 left-0 ${hoveredIndex === (index % slides.length) ? 'opacity-100' : 'opacity-0'}`}
-                />
+          <h2 className="p-4 bg-gradient-to-r from-black to-blue-400 text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-semibold text-white rounded-t-3xl">
+            Nuestro <span className="font-bold text-blue-300">TOP!</span>
+          </h2>
+          <div className="relative p-6 mb-12 rounded-b-3xl bg-gradient-to-r from-black to-blue-400">
+            <div className="relative w-full overflow-hidden">
+              <div className="flex transition-transform duration-1000" style={{ transform: `translateX(-${currentSlide * (100 / (window.innerWidth < 1024 ? 1 : 4))}%)` }}>
+                {slides.concat(slides).map((slide, index) => (
+                  <div key={index} className="w-full flex-shrink-0 px-2" style={{ width: `${window.innerWidth < 1024 ? '100%' : '25%'}` }}>
+                    <div
+                      className="flex justify-center items-center"
+                      onMouseEnter={() => setHoveredIndex(index % slides.length)}
+                      onMouseLeave={() => setHoveredIndex(null)}
+                    >
+                      <div className="relative">
+                        <img
+                          src={slide.src}
+                          alt={slide.alt}
+                          className={`h-max w-full object-contain rounded-3xl transition-opacity duration-1000 ${hoveredIndex === (index % slides.length) ? 'opacity-0' : 'opacity-100'}`}
+                        />
+                        <img
+                          src={slide.hoverSrc}
+                          alt={`${slide.alt}-hover`}
+                          className={`h-max w-full object-contain rounded-3xl transition-opacity duration-1000 absolute top-0 left-0 ${hoveredIndex === (index % slides.length) ? 'opacity-100' : 'opacity-0'}`}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
+              <button onClick={handlePrev} className="absolute top-1/2 transform -translate-y-1/2 left-0 p-2 bg-gray-700 text-white rounded-full hover:bg-gray-800 transition">
+                &lt;
+              </button>
+              <button onClick={handleNext} className="absolute top-1/2 transform -translate-y-1/2 right-0 p-2 bg-gray-700 text-white rounded-full hover:bg-gray-800 transition">
+                &gt;
+              </button>
             </div>
           </div>
-        ))}
-      </div>
-      <button onClick={handlePrev} className="absolute top-1/2 transform -translate-y-1/2 left-0 p-2 bg-gray-700 text-white rounded-full hover:bg-gray-800 transition">
-        &lt;
-      </button>
-      <button onClick={handleNext} className="absolute top-1/2 transform -translate-y-1/2 right-0 p-2 bg-gray-700 text-white rounded-full hover:bg-gray-800 transition">
-        &gt;
-      </button>
-    </div>
-  </div>
-</section>
+        </section>
 
         <section className=' container mx-auto rounded-3xl shadow-xl shadow-black z-50'>
           <h2 className="p-4 bg-gradient-to-r from-black to-blue-400 text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-semibold text-white rounded-t-3xl">
@@ -185,7 +185,7 @@ export default function App() {
             <div className="bg-orange-300 p-6 rounded-3xl shadow-2xl flex flex-col items-center transform transition duration-500 hover:scale-105 hover:bg-orange-400">
               <img src={productos} alt="productos" className="h-52 mb-4" />
               <h3 className="text-2xl font-extrabold text-black">Etsy</h3>
-              <p className="text-md font-semibold text-black-700 mb-4">Descubre y adquiere nuestros modelos 3D impresos en Etsy.</p>
+              <p className="text-md font-semibold text-black-700 mb-4">Descubre nuestros modelos 3D impresos en Etsy.</p>
               <p className="text-md font-semibold text-black-700 mb-4">+30 Clientes satisfechos</p>
               <div className="flex items-center pb-2">
                 {Array(5).fill().map((_, i) => (
