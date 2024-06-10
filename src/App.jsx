@@ -109,7 +109,7 @@ export default function App() {
           </h2>
           <div className="relative p-6 mb-12 rounded-b-3xl bg-gradient-to-r from-black to-blue-600 shadow-black z-0 text-white font">
             <p className="text-justify-center mb-4">
-              Somos dos jóvenes apasionados por el <span className="font-bold text-blue-300">3D</span>, y hemos creado <span className="font-bold text-blue-300">Viper3D</span> para acercar la <span className="font-bold text-blue-300">impresión 3D</span> a todos.
+              Somos dos jóvenes apasionados por la <span className="font-bold text-blue-300">tecnología</span>, y hemos creado <span className="font-bold text-blue-300">Viper3D</span> para acercar la <span className="font-bold text-blue-300">impresión 3D</span> a todos.
             </p>
             <p className="text-justify-center mb-4">
               Ofrecemos modelos <span className="font-bold text-blue-300">STL</span> y servicios de impresión en <span className="font-bold text-blue-300">PLA</span>, un material ecológico y sostenible. Creemos en la accesibilidad y en el respeto por el medio ambiente.
@@ -118,7 +118,7 @@ export default function App() {
               Con <span className="font-bold text-blue-300">Viper3D</span>, puedes dar vida a tus ideas, sin importar tu nivel de experiencia. ¡Únete a nosotros y descubre el poder transformador de la <span className="font-bold text-blue-300">impresión 3D</span>!
             </p>
             <p className="text-justify-center">
-              Necesitas algo a medida? Contáctanos en nuestras redes soliales o mandanos un mail a: <span className="font-bold text-blue-300">info.viper3d@gmail.com</span>
+              Necesitas algo a medida? Contáctanos en nuestras redes sociales o mándanos un mail a: <span className="font-extrabold text-blue-300">info.viper3d@gmail.com</span>
             </p>
           </div>
         </section>
