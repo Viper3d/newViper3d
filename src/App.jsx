@@ -146,7 +146,7 @@ export default function App() {
                         <img
                           src={slide.hoverSrc}
                           alt={`${slide.alt}-hover`}
-                          className={`h-max w-full object-contain rounded-3xl transition-opacity duration-1000 absolute top-0 left-0 ${hoveredIndex === (index % slides.length) ? 'opacity-100' : 'opacity-0'}`}
+                          className={`w-full object-contain rounded-3xl transition-opacity duration-1000 absolute top-0 left-0 ${hoveredIndex === (index % slides.length) ? 'opacity-100' : 'opacity-0'}`}
                         />
                       </div>
                     </div>
