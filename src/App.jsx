@@ -123,7 +123,7 @@ export default function App() {
           </div>
         </section>
 
-        <section className='container mx-auto rounded-3xl shadow-xl shadow-black z-50'>
+        <section className='container mx-auto rounded-3xl shadow-xl shadow-black z-50 max-w-full px-4'>
           <h2 className="p-4 bg-gradient-to-r from-black to-blue-400 text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-semibold text-white rounded-t-3xl">
             Nuestro <span className="font-bold text-blue-300">TOP!</span>
           </h2>
