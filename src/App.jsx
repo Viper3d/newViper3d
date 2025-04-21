@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import logo from "./assets/logo.svg";
 
 import freddy from "./assets/freddy.svg";
@@ -129,14 +130,12 @@ export default function App() {
             <p className="text-sm sm:text-2xl md:text-2xl lg:text-2xl font-medium mb-6 sm:mb-8 text-black">
               ¡Próximamente!
             </p>
-            <a
-              href="https://tu-evento-garajevision.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-block bg-indigo-100 text-black font-bold text-sm sm:text-base md:text-lg lg:text-xl px-6 sm:px-8 py-3 sm:py-4 rounded-full shadow-lg transition-all duration-300 hover:bg-black hover:text-white hover:shadow-2xl"
+            <Link
+              to="/GarajeVision"
+              className="inline-block bg-indigo-100 text-black font-bold px-8 py-4 rounded-full shadow-lg hover:bg-black hover:text-white transition"
             >
               Más Información
-            </a>
+            </Link>
           </div>
           {/* Elementos decorativos */}
           <div className="absolute -top-10 -right-10 h-36 w-36 sm:h-48 sm:w-48 bg-white/20 rounded-full blur-xl animate-pulse"></div>

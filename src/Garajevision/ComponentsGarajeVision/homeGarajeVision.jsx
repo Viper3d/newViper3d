@@ -1,19 +1,22 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { createClient } from "@supabase/supabase-js";
+import { supabase } from "../../lib/supabaseClient"; // ← import único
 import logo from "../../assets/logo.svg";
-
-const supabaseUrl = "https://ukennwbkjxebotrdfrbo.supabase.co";
-const supabaseKey =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVrZW5ud2JranhlYm90cmRmcmJvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzc3Mzg0MzAsImV4cCI6MjA1MzMxNDQzMH0.ZfCRGHRhZeLxcav_XQ2SilR4cDKTUjJ0PMkR1KCsrkw";
-const supabase = createClient(supabaseUrl, supabaseKey);
 
 const HomeGarajeVision = () => {
   const [ediciones, setEdiciones] = useState([]);
   const [openEdicion, setOpenEdicion] = useState(null);
 
   useEffect(() => {
-    // Simulación: en el futuro puedes obtener dinámicamente las ediciones desde Supabase.
+    // TODO: en el futuro, podrías hacer:
+    // const fetch = async () => {
+    //   let { data, error } = await supabase
+    //     .from("ediciones")
+    //     .select("anio, videos(*)");
+    //   if (!error) setEdiciones(data);
+    // };
+    // fetch();
+    // Por ahora, simulamos:
     setEdiciones([
       {
         anio: "2024",
@@ -134,8 +137,6 @@ const VideoCard = ({ video, index, showBadge }) => (
 );
 
 const EdicionCard = ({ edicion, isOpen, onToggle }) => {
-  // Si la edición está cerrada se muestran solo las 3 primeras canciones,
-  // de lo contrario se muestran todas.
   const videosToShow = isOpen ? edicion.videos : edicion.videos.slice(0, 3);
 
   return (
