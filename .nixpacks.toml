@@ -1,16 +1,17 @@
 [metadata]
-nixpacksVersion = ">=1.0.0"
+nixpacksVersion = ">=1.34.1"
 
 [phases.setup]
-# Instala explícitamente Node.js y npm
+# Fuerza la instalación de Node.js y npm
 packages = ["nodejs", "npm"]
 
 [phases.build]
+# Limpia, instala y compila
 commands = [
   "npm ci",
   "npm run build"
 ]
 
 [phases.start]
-# Ajusta esto a tu script de producción, por ejemplo vite preview o serve
+# Ajusta esto a tu script de producción (vite preview o serve)
 command = "npm run start"
