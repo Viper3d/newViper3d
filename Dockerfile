@@ -12,10 +12,14 @@ RUN npm run build
 
 # ─── STAGE 2: Servir con Nginx ──────────────────────────
 FROM nginx:stable-alpine
-# Borra la configuración por defecto (opcional)
+
+# Borra la configuración por defecto de Nginx
 RUN rm /etc/nginx/conf.d/default.conf
 
-# Copia build al directorio público de Nginx
+# Copia tu configuración personalizada
+COPY nginx/default.conf /etc/nginx/conf.d/default.conf
+
+# Copia el build de la app al directorio público de Nginx
 COPY --from=builder /app/dist /usr/share/nginx/html
 
 # Exponer puerto 80
