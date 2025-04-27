@@ -1,14 +1,21 @@
+// src/components/Dashboard.jsx
 import React, { useEffect, useState } from "react";
 import { supabase, supabaseAdmin } from "../../lib/supabaseClient";
 import { useNavigate } from "react-router-dom";
 
+// Componentes para vídeo
+import EditionSelector from "./EditionSelector";
+import VideoForm from "./VideoForm";
+import VideoList from "./VideoList";
+
 const Dashboard = () => {
+  // ===== Usuarios =====
   const [users, setUsers] = useState([]);
   const [newEmail, setNewEmail] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const navigate = useNavigate();
 
-  // 1) Listar usuarios
+  // Listar usuarios
   const fetchUsers = async () => {
     const { data, error } = await supabaseAdmin.auth.admin.listUsers({
       page: 1,
@@ -22,11 +29,7 @@ const Dashboard = () => {
     }
   };
 
-  useEffect(() => {
-    fetchUsers();
-  }, []);
-
-  // 2) Crear usuario
+  // Crear usuario
   const handleCreateUser = async (e) => {
     e.preventDefault();
     const { data, error } = await supabaseAdmin.auth.admin.createUser({
@@ -44,7 +47,7 @@ const Dashboard = () => {
     }
   };
 
-  // 3) Eliminar usuario
+  // Eliminar usuario
   const handleDeleteUser = async (id) => {
     if (!window.confirm("¿Eliminar este usuario?")) return;
     const { error } = await supabaseAdmin.auth.admin.deleteUser(id);
@@ -55,29 +58,113 @@ const Dashboard = () => {
     }
   };
 
-  // 4) Logout
+  // Eliminar vídeo
+  const handleDeleteVideo = async (video) => {
+    if (!window.confirm(`¿Eliminar "${video.title}"?`)) return;
+
+    // 1) Borrar de Storage
+    const { error: removeError } = await supabase.storage
+      .from("videos")
+      .remove([video.file_path]);
+    if (removeError) {
+      console.error("Error al borrar del bucket:", removeError);
+      alert("No se pudo borrar el archivo de vídeo.");
+      return;
+    }
+
+    // 2) Borrar registro de la tabla
+    const { error: deleteError } = await supabase
+      .from("videos")
+      .delete()
+      .eq("id", video.id);
+    if (deleteError) {
+      console.error("Error al borrar registro:", deleteError);
+      alert("No se pudo borrar el registro de la base de datos.");
+      return;
+    }
+
+    // 3) Refrescar lista
+    fetchVideos(selectedEdition);
+  };
+
+  // Logout
   const handleSignOut = async () => {
     await supabase.auth.signOut();
     navigate("/login");
   };
 
+  // ===== Vídeos por edición =====
+  const [editions, setEditions] = useState([]);
+  const [selectedEdition, setSelectedEdition] = useState(null);
+  const [videos, setVideos] = useState([]);
+  const [loadingVideos, setLoadingVideos] = useState(false);
+
+  // Cargar ediciones
+  const fetchEditions = async () => {
+    const { data, error } = await supabase
+      .from("editions")
+      .select("*")
+      .order("created_at", { ascending: false });
+    if (error) {
+      console.error("Error al cargar ediciones:", error);
+    } else {
+      setEditions(data);
+    }
+  };
+
+  // Cargar vídeos de la edición seleccionada
+  const fetchVideos = async (edition) => {
+    if (!edition) {
+      setVideos([]);
+      return;
+    }
+    setLoadingVideos(true);
+    const { data, error } = await supabase
+      .from("videos")
+      .select("*")
+      .eq("edition_id", edition.id)
+      .order("position", { ascending: true, nulls: "last" })
+      .order("created_at", { ascending: false });
+    if (error) {
+      console.error("Error al cargar vídeos:", error);
+      setVideos([]);
+    } else {
+      setVideos(data);
+    }
+    setLoadingVideos(false);
+  };
+
+  // Refrescar listas al montar
+  useEffect(() => {
+    fetchUsers();
+    fetchEditions();
+  }, []);
+
+  // Refrescar vídeos cuando cambie la edición
+  useEffect(() => {
+    fetchVideos(selectedEdition);
+  }, [selectedEdition]);
+
   return (
     <div className="relative p-6 min-h-screen bg-gray-900">
       <div className="absolute inset-0 bg-gradient-to-r from-indigo-800 to-indigo-500 animate-gradient-xy blur-3xl" />
       <div className="relative z-10 max-w-screen-lg m-auto bg-gray-800 bg-opacity-90 backdrop-blur-sm rounded-2xl border-4 border-indigo-900 p-6 space-y-8">
+        {/* === HEADER === */}
         <header className="flex items-center justify-between">
           <h1 className="text-4xl font-bold text-white drop-shadow-lg">
             Dashboard Admin
           </h1>
-          <button
-            onClick={handleSignOut}
-            className="px-4 py-2 bg-red-600 text-white rounded-md hover:opacity-90"
-          >
-            Cerrar sesión
-          </button>
+          <div className="flex space-x-4">
+            <button
+              onClick={handleSignOut}
+              className="px-4 py-2 bg-red-600 text-white rounded-md hover:opacity-90"
+            >
+              Cerrar sesión
+            </button>
+          </div>
         </header>
 
-        {/* Crear nuevo usuario */}
+        {/* === Sección: Crear nuevo usuario === */}
         <section className="bg-gray-700 p-6 rounded-2xl space-y-4">
           <h2 className="text-2xl font-bold text-white">Crear nuevo usuario</h2>
           <form
@@ -109,7 +196,7 @@ const Dashboard = () => {
           </form>
         </section>
 
-        {/* Tabla de usuarios */}
+        {/* === Sección: Lista de usuarios === */}
         <section className="bg-gray-700 p-6 rounded-2xl overflow-x-auto">
           <h2 className="text-2xl font-bold text-white mb-4">
             Lista de usuarios
@@ -146,6 +233,41 @@ const Dashboard = () => {
               ))}
             </tbody>
           </table>
+        </section>
+
+        {/* === Dashboard de vídeos debajo === */}
+        <section className="space-y-8">
+          <h2 className="text-3xl font-bold text-white">Gestión de Vídeos</h2>
+
+          {/* Selector de edición */}
+          <EditionSelector
+            editions={editions}
+            selectedEdition={selectedEdition}
+            onChange={setSelectedEdition}
+          />
+
+          <div className="grid md:grid-cols-2 gap-8">
+            {/* Formulario de subida */}
+            <VideoForm
+              editions={editions}
+              onVideoAdded={() => {
+                fetchEditions();
+                fetchVideos(selectedEdition);
+              }}
+            />
+
+            {/* Listado de vídeos */}
+            <div className="bg-gray-700 p-6 rounded-2xl overflow-y-auto">
+              <h3 className="text-2xl font-bold text-white mb-4">
+                Vídeos de "{selectedEdition?.name || "—"}"
+              </h3>
+              {loadingVideos ? (
+                <p className="text-gray-300">Cargando vídeos...</p>
+              ) : (
+                <VideoList videos={videos} onDelete={handleDeleteVideo} />
+              )}
+            </div>
+          </div>
         </section>
       </div>
     </div>
