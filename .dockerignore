@@ -1,6 +1,0 @@
-node_modules
-dist
-.env*
-supabase/functions
-.nixpacks*
-Dockerfile.nixpacks-backup
