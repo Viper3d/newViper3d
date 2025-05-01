@@ -146,22 +146,20 @@ const Dashboard = () => {
   }, [selectedEdition]);
 
   return (
-    <div className="relative p-6 min-h-screen bg-gray-900">
+    <div className="min-h-screen bg-gray-900">
       <div className="absolute inset-0 bg-gradient-to-r from-indigo-800 to-indigo-500 animate-gradient-xy blur-3xl" />
-      <div className="relative z-10 max-w-screen-lg m-auto bg-gray-800 bg-opacity-90 backdrop-blur-sm rounded-2xl border-4 border-indigo-900 p-6 space-y-8">
+      <div className="relative z-10 w-full px-4 sm:px-6 lg:px-8 py-6 bg-gray-800 bg-opacity-90 backdrop-blur-sm rounded-2xl border-4 border-indigo-900 space-y-8">
         {/* === HEADER === */}
-        <header className="flex items-center justify-between">
+        <header className="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-4 sm:space-y-0">
           <h1 className="text-4xl font-bold text-white drop-shadow-lg">
             Dashboard Admin
           </h1>
-          <div className="flex space-x-4">
-            <button
-              onClick={handleSignOut}
-              className="px-4 py-2 bg-red-600 text-white rounded-md hover:opacity-90"
-            >
-              Cerrar sesión
-            </button>
-          </div>
+          <button
+            onClick={handleSignOut}
+            className="px-4 py-2 bg-red-600 text-white rounded-md hover:opacity-90"
+          >
+            Cerrar sesión
+          </button>
         </header>
 
         {/* === Sección: Crear nuevo usuario === */}
@@ -246,7 +244,7 @@ const Dashboard = () => {
             onChange={setSelectedEdition}
           />
 
-          <div className="grid md:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {/* Formulario de subida */}
             <VideoForm
               editions={editions}
