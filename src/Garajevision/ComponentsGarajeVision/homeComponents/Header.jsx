@@ -1,8 +1,8 @@
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { supabase } from "../../../lib/supabaseClient";
-import logo from "../../../../dist/logo.svg";
-import logoGv from "../../../../dist/logo_gv.png"; // Import the new logo
+import logo from "../../../assets/logo.svg";
+import logoGv from "../../../assets/logo_gv.png";
 import { PowerIcon } from "@heroicons/react/24/solid";
 import confetti from "canvas-confetti";
 
