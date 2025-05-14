@@ -1,7 +1,8 @@
+// src/components/LoginGarajeVision.jsx
 import React, { useState } from "react";
-import { supabase } from "../../lib/supabaseClient";
-import logo from "../../assets/logo.svg";
-import { Link, useNavigate } from "react-router-dom";
+import { supabase } from "../../../lib/supabaseClient";
+import logo from "../../../assets/logo.svg";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 
 const LoginGarajeVision = () => {
   const [email, setEmail] = useState("");
@@ -9,32 +10,55 @@ const LoginGarajeVision = () => {
   const [errorMsg, setErrorMsg] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
   const navigate = useNavigate();
-
-  // Lista de emails admin
-  const adminEmails = ["mendo@calvo.com", "admin@garajevision.com"];
+  const location = useLocation();
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    setErrorMsg("");
+    setSuccessMsg("");
 
+    console.log("[Login] Intentando login con:", email);
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
-
+    console.log("[Login] signInWithPassword -> data:", data, "error:", error);
     if (error) {
-      setSuccessMsg("");
       setErrorMsg(error.message);
+      return;
+    }
+
+    const user = data.user;
+    console.log("[Login] Usuario autenticado:", user);
+    const { data: profile, error: profError } = await supabase
+      .from("profiles")
+      .select("is_admin")
+      .eq("id", user.id)
+      .single();
+    console.log(
+      "[Login] profile query -> profile:",
+      profile,
+      "profError:",
+      profError
+    );
+    if (profError) {
+      setErrorMsg("No se pudo comprobar el perfil: " + profError.message);
+      return;
+    }
+
+    // redirige inmediatamente
+    setSuccessMsg("¡Inicio de sesión exitoso!");
+    // Redirección inteligente: si viene de votar, volver ahí
+    if (location.state && location.state.from) {
+      navigate(location.state.from, { replace: true });
+      return;
+    }
+    if (profile?.is_admin) {
+      console.log("[Login] Redirigiendo a /dashboard");
+      navigate("/dashboard", { replace: true });
     } else {
-      setErrorMsg("");
-      setSuccessMsg("¡Inicio de sesión exitoso!");
-      setTimeout(() => {
-        // Si es admin, a /dashboard, si no, a la home normal
-        if (data.user && adminEmails.includes(data.user.email)) {
-          navigate("/dashboard");
-        } else {
-          navigate("/GarajeVision");
-        }
-      }, 1000);
+      console.log("[Login] Redirigiendo a /GarajeVision");
+      navigate("/GarajeVision", { replace: true });
     }
   };
 
@@ -65,7 +89,7 @@ const LoginGarajeVision = () => {
                 id="email"
                 type="email"
                 required
-                className="w-full px-3 py-2 mt-1 bg-gray-700 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-white"
+                className="w-full px-3 py-2 mt-1 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
@@ -81,14 +105,14 @@ const LoginGarajeVision = () => {
                 id="password"
                 type="password"
                 required
-                className="w-full px-3 py-2 mt-1 bg-gray-700 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-white"
+                className="w-full px-3 py-2 mt-1 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
             </div>
             <button
               type="submit"
-              className="w-full px-4 py-2 text-sm font-medium text-white bg-indigo-500 border border-transparent rounded-md shadow-sm transform transition-all duration-500 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              className="w-full px-4 py-2 text-sm font-medium text-white bg-indigo-500 rounded-md shadow-sm transform transition hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
             >
               Sign In
             </button>

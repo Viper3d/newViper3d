@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, Route } from "react-router-dom";
 import logo from "./assets/logo.svg";
 
 import freddy from "./assets/freddy.svg";
@@ -26,6 +26,8 @@ import tiktok from "./assets/tiktok.svg";
 import instagram from "./assets/instagram.svg";
 import youtube from "./assets/youtube.svg";
 import titulo from "./assets/titulo.svg";
+
+import GarajeVisionResultadosPage from "./Garajevision/ComponentsGarajeVision/garajevisionResultados/GarajeVisionResultadosPage";
 
 export default function App() {
   const [hoveredIndex, setHoveredIndex] = useState(null);

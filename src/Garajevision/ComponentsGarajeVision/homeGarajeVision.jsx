@@ -1,19 +1,22 @@
 // src/components/HomeGarajeVision.jsx
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
 import { supabase } from "../../lib/supabaseClient";
-import logo from "../../assets/logo.svg";
+import Header from "./homeComponents/Header";
+import EdicionCard from "./homeComponents/EdicionCard";
+import EdicionCardSkeleton from "./homeComponents/EdicionCardSkeleton"; // Import new skeleton
 
 const HomeGarajeVision = () => {
   const [ediciones, setEdiciones] = useState([]);
   const [openEdicion, setOpenEdicion] = useState(null);
+  const [isLoading, setIsLoading] = useState(true); // Add loading state
 
-  // Carga ediciones + vídeos
+  // Carga ediciones + vídeos con logs de depuración
   useEffect(() => {
     const fetchEdiciones = async () => {
+      setIsLoading(true);
       const { data, error } = await supabase
         .from("editions")
-        .select("id, name, videos(*)")
+        .select("id, name, videos(*), votaciones(start_at, end_at)") // Include votaciones data
         .order("position", {
           foreignTable: "videos",
           ascending: true,
@@ -23,10 +26,65 @@ const HomeGarajeVision = () => {
 
       if (error) {
         console.error("Error al cargar ediciones:", error);
+        setEdiciones([]); // Set to empty or handle error appropriately
       } else {
-        setEdiciones(data);
+        const now = new Date(); // Current date and time
+        const processedEdiciones = data.map((edicion) => {
+          let isActive = false;
+          let relevantVotingStartDate = null;
+          let relevantVotingEndDate = null;
+
+          if (edicion.votaciones && edicion.votaciones.length > 0) {
+            const votingPeriods = edicion.votaciones
+              .map((v) => ({
+                start: v.start_at ? new Date(v.start_at) : null,
+                end: v.end_at ? new Date(v.end_at) : null,
+              }))
+              .filter((v) => v.start && v.end) // Ensure both dates are valid
+              .sort((a, b) => a.start - b.start); // Sort by start date ascending
+
+            for (const period of votingPeriods) {
+              if (now >= period.start && now <= period.end) {
+                isActive = true;
+                // For active periods, we don't need to show a 'why disabled' tooltip,
+                // so relevant dates can remain null or be set to the active period.
+                // Let's keep them null for simplicity as they are for the 'disabled' state.
+                break;
+              }
+            }
+
+            if (!isActive) {
+              const upcomingPeriods = votingPeriods.filter(
+                (p) => p.start > now
+              );
+              if (upcomingPeriods.length > 0) {
+                // Earliest upcoming period
+                relevantVotingStartDate = upcomingPeriods[0].start;
+                relevantVotingEndDate = upcomingPeriods[0].end; // Store end date too
+              } else {
+                // If no upcoming, check for the most recent past period
+                const pastPeriods = votingPeriods.filter((p) => p.end < now);
+                if (pastPeriods.length > 0) {
+                  pastPeriods.sort((a, b) => b.end - a.end); // Sort by end date descending
+                  relevantVotingStartDate = pastPeriods[0].start; // Store start date too
+                  relevantVotingEndDate = pastPeriods[0].end;
+                }
+              }
+            }
+          }
+          return {
+            ...edicion,
+            isVotingActive: isActive,
+            relevantVotingStartDate,
+            relevantVotingEndDate,
+          };
+        });
+
+        setEdiciones(processedEdiciones);
       }
+      setIsLoading(false);
     };
+
     fetchEdiciones();
   }, []);
 
@@ -38,124 +96,41 @@ const HomeGarajeVision = () => {
   };
 
   return (
-    <div className="relative p-6 min-h-screen bg-gray-900">
+    <div className="relative p-2 sm:p-4 md:p-6 min-h-screen bg-gray-900">
       <div className="absolute inset-0 bg-gradient-to-r from-indigo-800 to-indigo-500 animate-gradient-xy blur-3xl" />
-      <div className="relative z-10 w-full max-w-screen-2xl mx-auto bg-gray-800 bg-opacity-90 backdrop-blur-sm rounded-2xl border-4 border-indigo-900 p-6 space-y-8">
-        <header className="flex items-center justify-between">
-          <Link to="/">
-            <img
-              src={logo}
-              alt="Logo GarajeVision"
-              className="h-20 transition-transform duration-500 hover:scale-110"
-            />
-          </Link>
-          <h1 className="text-4xl font-bold text-white drop-shadow-lg">
-            GarajeVision
-          </h1>
-        </header>
+      <div className="relative z-10 w-full max-w-screen-2xl mx-auto bg-gray-800 bg-opacity-90 backdrop-blur-sm rounded-2xl border-4 border-indigo-900 p-2 sm:p-4 md:p-6 space-y-4 sm:space-y-8">
+        <Header />
 
-        <section>
-          <h2 className="text-2xl font-bold text-white mb-6">Ediciones</h2>
-          <div className="space-y-6">
-            {ediciones.map((ed) => (
-              <EdicionCard
-                key={ed.id}
-                edicion={ed}
-                isOpen={openEdicion === ed.id}
-                onToggle={() =>
-                  setOpenEdicion(openEdicion === ed.id ? null : ed.id)
-                }
-                onPlay={handlePlay}
-              />
-            ))}
+        <section className="text-center">
+          <h2 className="text-5xl sm:text-6xl lg:text-7xl font-black tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-teal-500 to-emerald-600 py-3 mb-8 sm:mb-10 [text-shadow:0_0_5px_rgba(72,209,204,0.5),_0_0_10px_rgba(72,209,204,0.3)] transition-all duration-300 ease-in-out hover:opacity-80 hover:scale-[1.02]">
+            Ediciones
+          </h2>
+          <div className="space-y-4 sm:space-y-6">
+            {isLoading ? ( // Conditional rendering based on loading state
+              <>
+                {/* Render a few EdicionCardSkeleton cards */}
+                {[...Array(2)].map((_, index) => (
+                  <EdicionCardSkeleton key={index} />
+                ))}
+              </>
+            ) : (
+              ediciones.map((ed) => (
+                <EdicionCard
+                  key={ed.id}
+                  edicion={ed}
+                  isVotingActive={ed.isVotingActive} // Pass the calculated status
+                  relevantVotingStartDate={ed.relevantVotingStartDate} // Pass relevant start date
+                  relevantVotingEndDate={ed.relevantVotingEndDate} // Pass relevant end date
+                  isOpen={openEdicion === ed.id}
+                  onToggle={() =>
+                    setOpenEdicion(openEdicion === ed.id ? null : ed.id)
+                  }
+                  onPlay={handlePlay}
+                />
+              ))
+            )}
           </div>
         </section>
-      </div>
-    </div>
-  );
-};
-
-const VideoCard = ({ video, onPlay }) => {
-  // Determinar estilos de badge y glow según posición
-  const pos = video.position;
-  const badgeClasses =
-    pos === 1
-      ? "bg-yellow-300 text-yellow-800"
-      : pos === 2
-      ? "bg-gray-300 text-gray-800"
-      : pos === 3
-      ? "bg-orange-500 text-orange-100"
-      : "bg-black text-white";
-
-  const glowClass =
-    pos === 1
-      ? "hover:shadow-[0_0_64px_rgba(255,215,0,0.8)]"
-      : pos === 2
-      ? "hover:shadow-[0_0_64px_rgba(192,192,192,0.8)]"
-      : pos === 3
-      ? "hover:shadow-[0_0_64px_rgba(205,127,50,0.8)]"
-      : "hover:shadow-[0_0_64px_rgba(0,255,255,0.6)]";
-
-  return (
-    <div
-      className={`
-        relative
-        bg-gradient-to-br from-gray-700 to-black
-        rounded-xl p-4 flex flex-col items-center space-y-3
-        shadow-md transition-shadow duration-300
-        ${glowClass}
-      `}
-    >
-      {pos != null && (
-        <div
-          className={`${badgeClasses} absolute top-2 right-2 rounded-full px-2 text-xs font-bold`}
-        >
-          {pos}º
-        </div>
-      )}
-
-      <video
-        data-id={video.id}
-        src={video.video_url}
-        controls
-        preload="metadata"
-        onPlay={() => onPlay(video.id)}
-        className="w-full h-full object-cover rounded-md"
-      >
-        Tu navegador no soporta el elemento <code>video</code>.
-      </video>
-
-      <h4 className="text-lg font-semibold text-white">{video.title}</h4>
-      {video.authors?.length > 0 && (
-        <p className="text-gray-200 text-sm">
-          Autor{video.authors.length > 1 ? "es" : ""}:{" "}
-          {video.authors.join(", ")}
-        </p>
-      )}
-    </div>
-  );
-};
-
-const EdicionCard = ({ edicion, isOpen, onToggle, onPlay }) => {
-  const videosToShow = isOpen ? edicion.videos : edicion.videos.slice(0, 3);
-
-  return (
-    <div className="bg-indigo-700 bg-opacity-90 rounded-2xl overflow-hidden shadow-lg transition-shadow duration-500 hover:shadow-2xl">
-      <div className="p-4">
-        <h3 className="text-2xl font-bold text-white">{edicion.name}</h3>
-      </div>
-      <div className="p-4 grid grid-cols-1 sm:grid-cols-3 gap-6">
-        {videosToShow.map((v) => (
-          <VideoCard key={v.id} video={v} onPlay={onPlay} />
-        ))}
-      </div>
-      <div className="p-4 text-center">
-        <button
-          onClick={onToggle}
-          className="mt-2 px-4 py-2 bg-indigo-500 text-white font-semibold rounded-md transition-shadow duration-300 hover:shadow-lg"
-        >
-          {isOpen ? "Cerrar" : "Ver todas las canciones"}
-        </button>
       </div>
     </div>
   );

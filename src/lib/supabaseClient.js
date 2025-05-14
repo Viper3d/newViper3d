@@ -2,60 +2,31 @@
 import { createClient } from "@supabase/supabase-js";
 
 // — Variables de entorno
-const URL         = import.meta.env.VITE_SUPABASE_URL;
-const ANON_KEY    = import.meta.env.VITE_SUPABASE_ANON_KEY;
-const SERVICE_KEY = import.meta.env.VITE_SUPABASE_SERVICE_ROLE_KEY; // ¡solo en dev!
+const URL      = import.meta.env.VITE_SUPABASE_URL;
+const ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
+const SRV_KEY  = import.meta.env.VITE_SUPABASE_SERVICE_ROLE_KEY; // ¡solo dev!
 
-// — Detectar storage válido para el cliente público
-function getAvailableStorage() {
-  if (typeof window === "undefined") return undefined;
-  try {
-    window.localStorage.setItem("__test", "1");
-    window.localStorage.removeItem("__test");
-    return window.localStorage;
-  } catch {
-    try {
-      window.sessionStorage.setItem("__test", "1");
-      window.sessionStorage.removeItem("__test");
-      return window.sessionStorage;
-    } catch {
-      return undefined;
-    }
-  }
-}
+// — Forzamos siempre sessionStorage (no localStorage)
+const storage = typeof window !== "undefined" ? window.sessionStorage : undefined;
 
-// — “No-op” storage para el admin client
-const noopStorage = {
-  getItem:    (_key)   => null,
-  setItem:    (_key, _v) => {},
-  removeItem: (_key)   => {},
-};
-
-// — Cliente público (anon): para auth y operaciones de vídeos en el Home
+// — Cliente público (anon) — lee / sube vídeos, maneja sesión en sessionStorage
 export const supabase = createClient(URL, ANON_KEY, {
   auth: {
     detectSessionInUrl: false,
-    storage:            getAvailableStorage(),
-    persistSession:     !!getAvailableStorage(),
+    storage,            // usamos sessionStorage
+    persistSession: true,
+    autoRefreshToken: true, // mantiene el token activo
   },
 });
 
-// — Cliente “admin” (service role): solo para Dashboard y sin tocar ningún storage
-export const supabaseAdmin = createClient(URL, SERVICE_KEY, {
+// — Cliente admin (service role) — NO guarda nada de sesión
+export const supabaseAdmin = createClient(URL, SRV_KEY, {
   auth: {
     detectSessionInUrl: false,
-    storage:            noopStorage,
-    persistSession:     false,
+    storage: undefined,     // no lee/escribe sessionStorage
+    persistSession: false,  // no persiste sesión
+    autoRefreshToken: false // no intenta refrescar tokens
   },
 });
 
-// — Logs de comprobación (opcional)
-console.log("Supabase URL:", URL);
-console.log("Anon Key    :", ANON_KEY);
-console.log(
-  "Storage público:",
-  getAvailableStorage() === window.localStorage ? "localStorage"
-    : getAvailableStorage() === window.sessionStorage ? "sessionStorage"
-    : "ninguno"
-);
-console.log("Admin client usa no-op storage para evitar errores de contexto.");
+

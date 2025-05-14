@@ -1,24 +1,51 @@
-import React, { useEffect, useState } from "react";
+// src/Garajevision/ComponentsGarajeVision/ProtectedRoute.jsx
+import React, { useState, useEffect } from "react";
 import { supabase } from "../../lib/supabaseClient";
-import { Navigate } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
 
-const adminEmails = ["mendo@calvo.com", "admin@garajevision.com"];
-
-const ProtectedRoute = ({ children }) => {
+export default function ProtectedRoute({ children }) {
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
+  const location = useLocation();
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      const email = session?.user?.email;
-      setIsAdmin(email ? adminEmails.includes(email) : false);
+    const checkAdmin = async () => {
+      // 1) Obtenemos sesión
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      if (!session) {
+        setIsAdmin(false);
+        setLoading(false);
+        return;
+      }
+
+      // 2) Consultamos la tabla profiles
+      const { data: profile, error } = await supabase
+        .from("profiles")
+        .select("is_admin")
+        .eq("id", session.user.id)
+        .single();
+
+      if (error || !profile?.is_admin) {
+        setIsAdmin(false);
+      } else {
+        setIsAdmin(true);
+      }
       setLoading(false);
-    });
+    };
+
+    checkAdmin();
   }, []);
 
-  if (loading) return null; // o un spinner
-  if (!isAdmin) return <Navigate to="/login" />;
-  return children;
-};
+  // Mientras comprueba la sesión/perfil…
+  if (loading) return <div className="text-white p-4">Cargando…</div>;
 
-export default ProtectedRoute;
+  // Si no es admin, le mandamos al login
+  if (!isAdmin) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  // Si es admin, renderiza el contenido (Dashboard)
+  return <>{children}</>;
+}
