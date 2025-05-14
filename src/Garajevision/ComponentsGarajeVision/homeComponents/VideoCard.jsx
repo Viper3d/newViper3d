@@ -6,30 +6,51 @@ const VideoCard = ({ video, onPlay }) => {
   const videoRef = useRef(null);
   const pos = video.position;
 
-  /* …tus clases de badge y glow sin cambios… */
+  /* --- CLASES PARA BADGE / GLOW SIN CAMBIOS --- */
+  const badgeClasses =
+    pos === 1
+      ? "bg-yellow-300 text-yellow-800"
+      : pos === 2
+      ? "bg-gray-300 text-gray-800"
+      : pos === 3
+      ? "bg-orange-500 text-orange-100"
+      : "bg-black text-white";
 
+  const glowClass =
+    pos === 1
+      ? "hover:shadow-[0_0_64px_rgba(255,215,0,0.8)]"
+      : pos === 2
+      ? "hover:shadow-[0_0_64px_rgba(192,192,192,0.8)]"
+      : pos === 3
+      ? "hover:shadow-[0_0_64px_rgba(205,127,50,0.8)]"
+      : "hover:shadow-[0_0_64px_rgba(0,255,255,0.6)]";
+
+  /* ---------- NUEVO HANDLER iOS ---------- */
   const handleLoadedData = () => {
     const vid = videoRef.current;
     if (!vid) return;
 
     if (isiOS) {
-      // Truco: que avance un poquito para pintar fotograma,
-      // luego pausamos y dejamos el tiempo en 0
-      setTimeout(() => {
+      // Reproducimos en silencio → cuando llegue el 1er frame pausamos
+      const paintFirstFrame = () => {
         vid.pause();
-        vid.currentTime = 0;
-      }, 150);
-    } else {
-      vid.pause(); // Android / desktop
-    }
+        vid.currentTime = 0; // Rebobinamos
+        vid.removeEventListener("timeupdate", paintFirstFrame);
+      };
 
-    // Lo mantenemos silenciado hasta que el usuario interactúe
-    vid.muted = true;
+      vid.addEventListener("timeupdate", paintFirstFrame);
+      vid.play().catch(() => {
+        /* rara vez el autoplay falla por política; si pasa, al menos tenemos póster */
+      });
+    } else {
+      // Android / escritorio: lo de siempre
+      vid.pause();
+    }
   };
 
   const handlePlay = () => {
     const vid = videoRef.current;
-    if (vid) vid.muted = false; // Se vuelve a activar el audio al reproducir
+    if (vid) vid.muted = false; // Activa el sonido al pulsar Play
     onPlay(video.id);
   };
 
@@ -53,12 +74,13 @@ const VideoCard = ({ video, onPlay }) => {
         ref={videoRef}
         data-id={video.id}
         src={video.video_url}
-        poster={video.poster_url} /* <- opcional, ver método 1 */
-        preload="metadata" /* menos carga, suficiente para miniatura */
-        autoPlay /* dispara playback sin sonido */
-        muted /* requisito para autoplay en iOS */
-        playsInline /* evita fullscreen forzado */
-        controls /* tus controles normales */
+        poster={video.poster_url /* si no tienes miniatura, deja null */}
+        preload="metadata"
+        autoPlay // necesita muted + playsInline
+        muted
+        playsInline // React genera playsinline OK
+        webkit-playsinline="true" /* modelos antiguos */
+        controls
         onLoadedData={handleLoadedData}
         onPlay={handlePlay}
         className="w-full h-full object-cover rounded-md"
