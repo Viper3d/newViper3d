@@ -4,7 +4,7 @@
  * - open: boolean (si está abierto)
  * - onClose: función para cerrar el modal
  */
-import gvPresentacion from "../../../assets/gvPresentacion.png";
+import gvPresentacion from "../../../assets/gvPresentacion.webp";
 
 const ModalViper3D = ({ open, onClose }) => {
   console.log("[ModalViper3D] Render", { open });
