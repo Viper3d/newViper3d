@@ -9,10 +9,13 @@ import gvPresentacion from "../../../assets/gvPresentacion.png";
 const ModalViper3D = ({ open, onClose }) => {
   if (!open) return null;
   return (
-    <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={onClose}>
+    <div
+      className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/70 backdrop-blur-sm"
+      onClick={onClose}
+    >
       <div
         className="relative bg-gradient-to-br from-blue-900 via-indigo-800 to-purple-900 rounded-3xl shadow-2xl p-2 sm:p-6 max-w-[95vw] max-h-[90vh] flex flex-col items-center"
-        onClick={e => e.stopPropagation()}
+        onClick={(e) => e.stopPropagation()}
         style={{ zIndex: 100000 }}
       >
         <button

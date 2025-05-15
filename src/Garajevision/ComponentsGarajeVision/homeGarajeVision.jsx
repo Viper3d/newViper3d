@@ -109,8 +109,8 @@ const HomeGarajeVision = () => {
     <div className="relative p-2 sm:p-4 md:p-6 min-h-screen bg-gray-900">
       <div className="absolute inset-0 bg-gradient-to-r from-indigo-800 to-indigo-500 animate-gradient-xy blur-3xl" />
       <div className="relative z-10 w-full max-w-screen-2xl mx-auto bg-gray-800 bg-opacity-90 backdrop-blur-sm rounded-2xl border-4 border-indigo-900 p-2 sm:p-4 md:p-6 space-y-4 sm:space-y-8">
-        <Header onOpenModal={handleOpenPresentationModal} /> {/* Pass the handler to Header */}
-
+        <Header onOpenModal={handleOpenPresentationModal} />{" "}
+        {/* Pass the handler to Header */}
         <section className="text-center">
           <h2 className="text-5xl sm:text-6xl lg:text-7xl font-black tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-teal-500 to-emerald-600 py-3 mb-8 sm:mb-10 [text-shadow:0_0_5px_rgba(72,209,204,0.5),_0_0_10px_rgba(72,209,204,0.3)] transition-all duration-300 ease-in-out hover:opacity-80 hover:scale-[1.02]">
             Ediciones
@@ -143,7 +143,10 @@ const HomeGarajeVision = () => {
         </section>
       </div>
       {/* Render ModalViper3D here */}
-      <ModalViper3D open={showPresentationModal} onClose={handleClosePresentationModal} />
+      <ModalViper3D
+        open={showPresentationModal}
+        onClose={handleClosePresentationModal}
+      />
     </div>
   );
 };
