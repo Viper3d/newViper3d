@@ -6,10 +6,9 @@ import logoGv from "../../../assets/logo_gv.png";
 import { PowerIcon } from "@heroicons/react/24/solid";
 import confetti from "canvas-confetti";
 
-const Header = () => {
+const Header = ({ onOpenModal }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userEmail, setUserEmail] = useState("");
-  // Eliminado userName y toda la lógica relacionada
 
   useEffect(() => {
     // Comprobar sesión al montar
@@ -98,6 +97,10 @@ const Header = () => {
               colors: ["#f0abfc", "#a5b4fc", "#818cf8", "#f472b6", "#facc15"],
             });
           }, 250);
+
+          if (onOpenModal) {
+            onOpenModal();
+          }
         }}
       />
     </header>
