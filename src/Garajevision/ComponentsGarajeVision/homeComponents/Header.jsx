@@ -99,6 +99,9 @@ const Header = ({ onOpenModal }) => {
           }, 250);
 
           if (onOpenModal) {
+            console.log(
+              "[Header] Click en logo GarajeVision: abriendo modal presentación"
+            );
             onOpenModal();
           }
         }}
