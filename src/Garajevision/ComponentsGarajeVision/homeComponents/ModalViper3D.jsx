@@ -7,16 +7,17 @@
 import gvPresentacion from "../../../assets/gvPresentacion.png";
 
 const ModalViper3D = ({ open, onClose }) => {
+  console.log("[ModalViper3D] Render", { open });
   if (!open) return null;
   return (
     <div
-      className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/70 backdrop-blur-sm"
+      className="fixed inset-0 z-[2147483647] flex items-center justify-center bg-black/70 backdrop-blur-sm"
       onClick={onClose}
     >
       <div
         className="relative bg-gradient-to-br from-blue-900 via-indigo-800 to-purple-900 rounded-3xl shadow-2xl p-2 sm:p-6 max-w-[95vw] max-h-[90vh] flex flex-col items-center"
         onClick={(e) => e.stopPropagation()}
-        style={{ zIndex: 100000 }}
+        style={{ zIndex: 2147483647 }}
       >
         <button
           onClick={onClose}
